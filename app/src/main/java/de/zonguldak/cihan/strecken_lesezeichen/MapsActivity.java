@@ -43,20 +43,27 @@ public class MapsActivity extends FragmentActivity {
 
 */
         //automove germany
-        float zoomlevel = 5.7f;
-        LatLng germany = new LatLng(51.013879, 10.286731);
+        float zoomlevel = 5.75f;
+        LatLng germany = new LatLng(51.013879, 10.479999);
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(germany, zoomlevel));
 
 
+        float anchorX = 0.5f;
+        float anchorY = 0.5f;
+
         //Marker New York + Einwohnerzahl
         mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.newyorkcity))
+                .anchor(anchorX, anchorY)
                 .position(new LatLng(40.754408, -73.983969))
                 .title("New York")
                 .snippet("Einwohnerzahl: 8,405,837"));
 
         //Marker Köln + Einwohnerzahl
         mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.koeln))
+                .anchor(anchorX, anchorY)
                 .position(new LatLng(50.937548, 6.955467))
                 .title("Köln")
                 .snippet("Einwohnerzahl: 1.034.175"));
@@ -64,12 +71,17 @@ public class MapsActivity extends FragmentActivity {
         //Marker Düsseldorf + Einwohnerzahl
         mMap.addMarker(new MarkerOptions()
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.duesseldorf))
-                .anchor(0f, 1f)
+                .anchor(anchorX, anchorY)
                 .position(new LatLng(51.228029, 6.776070))
                 .title("Düsseldorf")
                 .snippet("Einwohnerzahl: 598,686"));
 
-
+        mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.zonguldak))
+                .anchor(anchorX, anchorY)
+                .position(new LatLng(41.456322, 31.798186))
+                .title("Zonguldak")
+                .snippet("Einwohnerzahl: 601.567"));
 
 
         //3D buildings!
