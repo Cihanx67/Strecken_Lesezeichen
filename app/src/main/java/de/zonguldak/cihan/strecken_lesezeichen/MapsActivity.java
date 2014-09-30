@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -25,6 +26,7 @@ public class MapsActivity extends FragmentActivity {
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
 
+        //GPS Location aktiviert
         mMap.setMyLocationEnabled(true);
 
 /*        float zoomLevel = 17f;
@@ -61,9 +63,13 @@ public class MapsActivity extends FragmentActivity {
 
         //Marker Düsseldorf + Einwohnerzahl
         mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.duesseldorf))
+                .anchor(0f, 1f)
                 .position(new LatLng(51.228029, 6.776070))
                 .title("Düsseldorf")
                 .snippet("Einwohnerzahl: 598,686"));
+
+
 
 
         //3D buildings!
@@ -73,7 +79,11 @@ public class MapsActivity extends FragmentActivity {
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
 
+        //Strings formatieren und auf 2 Nachkommastellen runden
         formatForDisplay = "%.2f";
+
+        //Wenn man lange klickt wird der angeklickte Punkt mit seiner LatLng angezeigt (mit Formatierung)
+
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng LatLng) {
@@ -81,6 +91,7 @@ public class MapsActivity extends FragmentActivity {
                 //move camera to click-point
                 //mMap.animateCamera(CameraUpdateFactory.newLatLng(LatLng));
 
+                //Latitude und Longitude werden als Toast (LENGHT_LONG) angezeigt
                 Toast.makeText(getApplicationContext(), "Latitude: " + String.format(formatForDisplay, LatLng.latitude) + " Longitude: " + String.format(formatForDisplay, LatLng.longitude), Toast.LENGTH_LONG).show();
             }
 
@@ -93,6 +104,8 @@ public class MapsActivity extends FragmentActivity {
         setUpMapIfNeeded();
     }
 
+
+   //Menu icons hinzufügen
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -100,6 +113,8 @@ public class MapsActivity extends FragmentActivity {
         return true;
     }
 
+
+    //Icons werden angezeigt und sobald man drauf klickt, ändert sich jenachdem der MAP_TYPE
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
@@ -117,21 +132,7 @@ public class MapsActivity extends FragmentActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
-     * installed) and the map has not already been instantiated.. This will ensure that we only ever
-     * call {@link #setUpMap()} once when {@link #mMap} is not null.
-     * <p>
-     * If it isn't installed {@link SupportMapFragment} (and
-     * {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to
-     * install/update the Google Play services APK on their device.
-     * <p>
-     * A user can return to this FragmentActivity after following the prompt and correctly
-     * installing/updating/enabling the Google Play services. Since the FragmentActivity may not
-     * have been completely destroyed during this process (it is likely that it would only be
-     * stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this
-     * method in {@link #onResume()} to guarantee that it will be called.
-     */
+
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
