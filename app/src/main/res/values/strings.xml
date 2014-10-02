@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Strecken_Lesezeichen</string>
+    <string name="app_name">SL</string>
     <string name="title_activity_maps">SL</string>
     <string name="normal">Normal</string>
     <string name="hybrid">Hybrid</string>
     <string name="terrain">Gelände</string>
+    <string name="cacity">Hauptstädte</string>
 
 
 </resources>

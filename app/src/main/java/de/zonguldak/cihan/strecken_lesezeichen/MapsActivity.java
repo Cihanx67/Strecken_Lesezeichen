@@ -515,6 +515,8 @@ public class MapsActivity extends FragmentActivity {
             case R.id.hybrid:
                 mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                 return true;
+            case R.id.cacity:
+
             default:
         }
         return super.onOptionsItemSelected(item);

@@ -13,9 +13,9 @@
         android:showAsAction="ifRoom|withText"
         />
 
-    <item android:id="@+id/terrain"
-        android:title="@string/terrain"
-        android:icon="@drawable/terrain"
+    <item android:id="@+id/capital"
+        android:title="@string/cacity"
+        android:icon="@drawable/capitalcity_grey"
         android:showAsAction="ifRoom|withText"
         />
 
