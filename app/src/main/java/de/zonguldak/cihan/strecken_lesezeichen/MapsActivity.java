@@ -14,11 +14,20 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+
 
 public class MapsActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private String formatForDisplay;
+
+    private ArrayList<String> capitalNames;
+    private ArrayList<LatLng> capitalCoordinates;
+    private ArrayList<String> capitalSnippets;
+    private ArrayList<Integer> capitalIconIds;
+    private int numberOfCapitals;
+    private boolean showCapitals;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,59 +57,126 @@ public class MapsActivity extends FragmentActivity {
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(germany, zoomlevel));
 
+        setupCapitals();
+        showCapitals = false;
+        showMarkers();
 
-        float anchorX = 0.5f;
-        float anchorY = 0.5f;
+        //3D buildings!
+        mMap.setBuildingsEnabled(true);
 
-        //Marker New York + Einwohnerzahl
-        mMap.addMarker(new MarkerOptions()
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.newyorkcity))
-                .anchor(anchorX, anchorY)
-                .position(new LatLng(40.754408, -73.983969))
-                .title("New York")
-                .snippet("Einwohnerzahl: 8,405,837"));
+        //MapType Normal
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        //Marker Köln + Einwohnerzahl
-        /*mMap.addMarker(new MarkerOptions()
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.koeln))
-                .anchor(anchorX, anchorY)
-                .position(new LatLng(50.937548, 6.955467))
-                .title("Köln")
-                .snippet("Einwohnerzahl: 1.034.175"));
 
-        //Marker Düsseldorf + Einwohnerzahl
-        mMap.addMarker(new MarkerOptions()
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.duesseldorf))
-                .anchor(anchorX, anchorY)
-                .position(new LatLng(51.228029, 6.776070))
-                .title("Düsseldorf")
-                .snippet("Einwohnerzahl: 598,686"));
+        //Strings formatieren und auf 2 Nachkommastellen runden
+        formatForDisplay = "%.2f";
 
-        mMap.addMarker(new MarkerOptions()
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.zonguldak))
-                .anchor(anchorX, anchorY)
-                .position(new LatLng(41.456322, 31.798186))
-                .title("Zonguldak")
-                .snippet("Einwohnerzahl: 601.567"));*/
+        //Wenn man lange klickt wird der angeklickte Punkt mit seiner LatLng angezeigt (mit Formatierung)
+
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng LatLng) {
+
+                //move camera to click-point
+                //mMap.animateCamera(CameraUpdateFactory.newLatLng(LatLng));
+
+                //Latitude und Longitude werden als Toast (LENGHT_LONG) angezeigt
+                Toast.makeText(getApplicationContext(), "Latitude: " + String.format(formatForDisplay, LatLng.latitude) + " Longitude: " + String.format(formatForDisplay, LatLng.longitude), Toast.LENGTH_LONG).show();
+            }
+
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setUpMapIfNeeded();
+    }
+
+    //Menu icons hinzufügen
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.maps, menu);
+        //  TODO get this 2 in a better way!
+        MenuItem capitalMenuItem = menu.getItem(2);
+        if (showCapitals) {
+            capitalMenuItem.setIcon(getResources().getDrawable(R.drawable.capitalcity_white));
+        } else {
+            capitalMenuItem.setIcon(getResources().getDrawable(R.drawable.capitalcity_grey));
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    //Icons werden angezeigt und sobald man drauf klickt, ändert sich jenachdem der MAP_TYPE
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.normal:
+                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                return true;
+            case R.id.hybrid:
+                mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                return true;
+            case R.id.capital:
+                showCapitals = !showCapitals;
+                showMarkers();
+                invalidateOptionsMenu();
+                return true;
+            default:
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    private void setUpMapIfNeeded() {
+        // Do a null check to confirm that we have not already instantiated the map.
+        if (mMap == null) {
+            // Try to obtain the map from the SupportMapFragment.
+            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+                    .getMap();
+            // Check if we were successful in obtaining the map.
+            if (mMap != null) {
+                setUpMap();
+            }
+        }
+    }
+
+
+
+
+
+    /**
+     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
+     * just add a marker near Africa.
+     * <p>
+     * This should only be called once and when we are sure that {@link #mMap} is not null.
+     */
+
+    private void setUpMap() {
+//        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+    }
+
+    private void setupCapitals() {
+        numberOfCapitals = 0;
+        capitalNames = new ArrayList<String>();
+        capitalCoordinates = new ArrayList<LatLng>();
+        capitalSnippets = new ArrayList<String>();
+        capitalIconIds = new ArrayList<Integer>();
+
+        capitalNames.add("Tirana");
+        capitalCoordinates.add(new LatLng(41.327542, 19.818553));
+        capitalSnippets.add("Einwohnerzahl: 418.495 Fläche: 41,8 km²");
+        capitalIconIds.add(R.drawable.tirana);
+        ++numberOfCapitals;
+        capitalNames.add("Andorra la Vella");
+        capitalCoordinates.add(new LatLng(42.506232, 1.521696));
+        capitalSnippets.add("Einwohnerzahl: 22.546 Fläche: 12 km²");
+        capitalIconIds.add(R.drawable.andorra);
+        ++numberOfCapitals;
 
         //Marker alle Hauptstädte Europas + Einwohnerzahl + Fläche
-
-        //Albanien Tirana
-        mMap.addMarker(new MarkerOptions()
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.tirana))
-                .anchor(anchorX, anchorY)
-                .position(new LatLng(41.327542, 19.818553))
-                .title("Tirana")
-                .snippet("Einwohnerzahl: 418.495 Fläche: 41,8 km²"));
-
-        //Andorra Andorra la Vella
-        mMap.addMarker(new MarkerOptions()
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.andorra))
-                .anchor(anchorX, anchorY)
-                .position(new LatLng(42.506232, 1.521696))
-                .title("Andorra la Vella")
-                .snippet("Einwohnerzahl: 22.546 Fläche: 12 km²"));
-
+  /*
         //Belgien Brüssel
         mMap.addMarker(new MarkerOptions()
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.bruessel))
@@ -206,14 +282,6 @@ public class MapsActivity extends FragmentActivity {
                 .title("Astana")
                 .snippet("Einwohnerzahl: 814.401 Fläche: 710 km²"));
 
-        //Kosovo Priština
-        /*mMap.addMarker(new MarkerOptions()
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.helsinki))
-                .anchor(anchorX, anchorY)
-                .position(new LatLng(42.6577982, 21.1533456 ))
-                .title("Helsinki")
-                .snippet("Einwohnerzahl: 198.897 Fläche: 572 km²"));*/
-
         //Kroatien Zagreb
         mMap.addMarker(new MarkerOptions()
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.zagreb))
@@ -229,14 +297,6 @@ public class MapsActivity extends FragmentActivity {
                 .position(new LatLng(56.9465363, 24.1048503))
                 .title("Riga")
                 .snippet("Einwohnerzahl: 699.203 Fläche: 307,17 km²"));
-
-        //Liechtenstein Vaduz
-        /*mMap.addMarker(new MarkerOptions()
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.zagreb))
-                .anchor(anchorX, anchorY)
-                .position(new LatLng(47.144863;9.5157663))
-                .title("Vaduz")
-                .snippet("Einwohnerzahl: 5229 Fläche: 17,3 km²"));*/
 
         //Litauen Vilnius
         mMap.addMarker(new MarkerOptions()
@@ -350,14 +410,6 @@ public class MapsActivity extends FragmentActivity {
                 .title("Moskau")
                 .snippet("Einwohnerzahl: 11.503.501 Fläche: 2510 km²"));
 
-        //San Marino San Marino
-        /*mMap.addMarker(new MarkerOptions()
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.amsterdam))
-                .anchor(anchorX, anchorY)
-                .position(new LatLng(43.9321564, 12.4486256))
-                .title("San Marino")
-                .snippet("Einwohnerzahl: 4214 Fläche: 7,09 km²"));*/
-
         //Schweden Stockholm
         mMap.addMarker(new MarkerOptions()
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.stockholm))
@@ -461,93 +513,83 @@ public class MapsActivity extends FragmentActivity {
                 .position(new LatLng(53.9, 27.5666667))
                 .title("Minsk")
                 .snippet("Einwohnerzahl: 1.921.861 Fläche: 348,85 km²"));
+//  */
+        // TODO wappen
+  /*
+        //Kosovo Priština
+        mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.helsinki))
+                .anchor(anchorX, anchorY)
+                .position(new LatLng(42.6577982, 21.1533456 ))
+                .title("Helsinki")
+                .snippet("Einwohnerzahl: 198.897 Fläche: 572 km²"));
 
+        //San Marino San Marino
+        mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.amsterdam))
+                .anchor(anchorX, anchorY)
+                .position(new LatLng(43.9321564, 12.4486256))
+                .title("San Marino")
+                .snippet("Einwohnerzahl: 4214 Fläche: 7,09 km²"));
 
-        //3D buildings!
-        mMap.setBuildingsEnabled(true);
+        //Liechtenstein Vaduz
+        mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.zagreb))
+                .anchor(anchorX, anchorY)
+                .position(new LatLng(47.144863,9.5157663))
+                .title("Vaduz")
+                .snippet("Einwohnerzahl: 5229 Fläche: 17,3 km²"));
 
-        //MapType Normal
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+//  */
+/*
+        //Marker New York + Einwohnerzahl
+        mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.newyorkcity))
+                .anchor(anchorX, anchorY)
+                .position(new LatLng(40.754408, -73.983969))
+                .title("New York")
+                .snippet("Einwohnerzahl: 8,405,837"));
 
+        //Marker Köln + Einwohnerzahl
+        mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.koeln))
+                .anchor(anchorX, anchorY)
+                .position(new LatLng(50.937548, 6.955467))
+                .title("Köln")
+                .snippet("Einwohnerzahl: 1.034.175"));
 
-        //Strings formatieren und auf 2 Nachkommastellen runden
-        formatForDisplay = "%.2f";
+        //Marker Düsseldorf + Einwohnerzahl
+        mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.duesseldorf))
+                .anchor(anchorX, anchorY)
+                .position(new LatLng(51.228029, 6.776070))
+                .title("Düsseldorf")
+                .snippet("Einwohnerzahl: 598,686"));
 
-        //Wenn man lange klickt wird der angeklickte Punkt mit seiner LatLng angezeigt (mit Formatierung)
+        mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.zonguldak))
+                .anchor(anchorX, anchorY)
+                .position(new LatLng(41.456322, 31.798186))
+                .title("Zonguldak")
+                .snippet("Einwohnerzahl: 601.567"));
+*/
+    }
 
-        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng LatLng) {
+    private void showMarkers() {
+        float anchorX = 0.5f;
+        float anchorY = 0.5f;
 
-                //move camera to click-point
-                //mMap.animateCamera(CameraUpdateFactory.newLatLng(LatLng));
-
-                //Latitude und Longitude werden als Toast (LENGHT_LONG) angezeigt
-                Toast.makeText(getApplicationContext(), "Latitude: " + String.format(formatForDisplay, LatLng.latitude) + " Longitude: " + String.format(formatForDisplay, LatLng.longitude), Toast.LENGTH_LONG).show();
+        if (showCapitals) {
+            for (int i = 0; i < numberOfCapitals; ++i) {
+                mMap.addMarker(new MarkerOptions()
+                        .icon(BitmapDescriptorFactory.fromResource(capitalIconIds.get(i)))
+                        .anchor(anchorX, anchorY)
+                        .position(capitalCoordinates.get(i))
+                        .title(capitalNames.get(i))
+                        .snippet(capitalSnippets.get(i)));
             }
-
-        });
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setUpMapIfNeeded();
-    }
-
-
-    //Menu icons hinzufügen
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.maps, menu);
-        return true;
-    }
-
-
-    //Icons werden angezeigt und sobald man drauf klickt, ändert sich jenachdem der MAP_TYPE
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.normal:
-                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                return true;
-            case R.id.hybrid:
-                mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                return true;
-            case R.id.cacity:
-
-            default:
+        } else {
+            mMap.clear();
         }
-        return super.onOptionsItemSelected(item);
-    }
-
-
-    private void setUpMapIfNeeded() {
-        // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
-            // Check if we were successful in obtaining the map.
-            if (mMap != null) {
-                setUpMap();
-            }
-        }
-    }
-
-
-
-
-
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-     * just add a marker near Africa.
-     * <p>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
-     */
-
-private void setUpMap() {
-//        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
     }
 }
